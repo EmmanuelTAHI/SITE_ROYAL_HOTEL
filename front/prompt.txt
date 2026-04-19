@@ -1,0 +1,537 @@
+import { useState, useEffect } from "react";
+
+// ─── Configuration de l'hôtel ────────────────────────────────────────────────
+const HOTEL = {
+  name: "Royal Hotel",
+  tagline: "Où l'élégance rencontre le confort",
+  phone: "+225 27 22 000 000",
+  email: "contact@hotelpalmier.ci",
+  address: "Grand-Bassam, Côte d'Ivoire",
+};
+
+// ─── Palette de couleurs ──────────────────────────────────────────────────────
+const C = {
+  gold:      "#C9A86C",
+  goldLight: "#E8D5A8",
+  dark:      "#1A1A1A",
+  charcoal:  "#2D2D2D",
+  cream:     "#FAF7F2",
+  white:     "#FFFFFF",
+  text:      "#3D3530",
+  muted:     "#7A6E66",
+};
+
+// ─── Images placeholder Unsplash (à remplacer par vos propres photos) ─────────
+const IMAGES = {
+  hero:  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&q=80",
+  about: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=900&q=80",
+  gallery: [
+    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=700&q=80",
+    "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=700&q=80",
+    "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=700&q=80",
+    "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=700&q=80",
+    "https://images.unsplash.com/photo-1551882547-ff40c4fe1fa7?w=700&q=80",
+    "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=700&q=80",
+  ],
+};
+
+// ─── Services ─────────────────────────────────────────────────────────────────
+const SERVICES = [
+  { icon: "🛏️", title: "Chambres & Suites",       desc: "Des espaces raffinés avec vue panoramique et équipements haut de gamme pour un repos parfait." },
+  { icon: "🍽️", title: "Restaurant Gastronomique", desc: "Saveurs locales et internationales sublimées par nos chefs dans un cadre d'exception." },
+  { icon: "🏊", title: "Piscine & Spa",            desc: "Détente absolue avec piscine à débordement, hammam et soins bien-être personnalisés." },
+  { icon: "🎉", title: "Salles d'Événements",      desc: "Espaces modulables et entièrement équipés pour séminaires, mariages et réceptions." },
+  { icon: "🚗", title: "Service de Navette",        desc: "Transferts aéroport et excursions sur demande, disponibles 24h/24 et 7j/7." },
+  { icon: "📶", title: "Wi-Fi Premium",             desc: "Connexion haut débit ultra-rapide dans toutes les chambres et espaces communs." },
+];
+
+// ─── Styles réutilisables ─────────────────────────────────────────────────────
+const sectionLabel = {
+  color: C.gold, fontSize: "11px", letterSpacing: "5px",
+  textTransform: "uppercase", marginBottom: "16px", fontWeight: 400,
+};
+const sectionTitle = (color = C.dark) => ({
+  fontFamily: "'Cormorant Garamond', serif", fontWeight: 300,
+  fontSize: "clamp(38px, 4vw, 58px)", color, margin: 0, lineHeight: 1.15,
+});
+const btn = (bg, color, border = "none") => ({
+  background: bg, color, border, cursor: "pointer",
+  padding: "15px 44px", fontSize: "11px", letterSpacing: "3px",
+  textTransform: "uppercase", fontFamily: "'Jost', sans-serif",
+  fontWeight: 500, transition: "all 0.3s ease",
+});
+
+// ─── Composant principal ──────────────────────────────────────────────────────
+export default function HotelSite() {
+  const [scrolled,  setScrolled]  = useState(false);
+  const [menuOpen,  setMenuOpen]  = useState(false);
+  const [lightbox,  setLightbox]  = useState(null);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [sent, setSent] = useState(false);
+
+  // Injecter Google Fonts
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel  = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap";
+    document.head.appendChild(link);
+  }, []);
+
+  // Scroll listener pour la nav
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMenuOpen(false);
+  };
+
+  const handleSend = () => {
+    // TODO: brancher EmailJS ou Formspree ici
+    setSent(true);
+    setForm({ name: "", email: "", phone: "", message: "" });
+  };
+
+  // ─── NAV ────────────────────────────────────────────────────────────────────
+  const NAV_LINKS = [
+    { id: "accueil",  label: "Accueil" },
+    { id: "apropos",  label: "À Propos" },
+    { id: "services", label: "Services" },
+    { id: "galerie",  label: "Galerie" },
+    { id: "contact",  label: "Contact" },
+  ];
+
+  return (
+    <div style={{ fontFamily: "'Jost', sans-serif", color: C.text, background: C.cream, overflowX: "hidden" }}>
+
+      {/* ── CSS global (scroll smooth + animations) ── */}
+      <style>{`
+        html { scroll-behavior: smooth; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: translateX(-50%) scaleY(1); }
+          50%       { transform: translateX(-50%) scaleY(0.6); }
+        }
+        .nav-link:hover { color: ${C.gold} !important; }
+        .service-card:hover { transform: translateY(-10px); box-shadow: 0 24px 64px rgba(0,0,0,0.1); }
+        .gallery-img:hover img { transform: scale(1.07); }
+        .btn-gold:hover  { background: ${C.charcoal} !important; color: #fff !important; }
+        .btn-dark:hover  { background: ${C.gold} !important; color: ${C.dark} !important; }
+        .btn-outline:hover { background: rgba(255,255,255,0.15) !important; }
+        input::placeholder, textarea::placeholder { color: ${C.muted}; font-family: 'Jost', sans-serif; font-weight: 300; }
+        input:focus, textarea:focus { border-bottom-color: ${C.gold} !important; }
+        @media (max-width: 900px) {
+          .about-grid  { grid-template-columns: 1fr !important; }
+          .contact-grid{ grid-template-columns: 1fr !important; }
+          .services-grid{ grid-template-columns: 1fr 1fr !important; }
+          .gallery-grid { grid-template-columns: 1fr 1fr !important; }
+          .gallery-grid .gallery-wide { grid-column: span 2 !important; }
+          .desktop-nav { display: none !important; }
+          .hamburger   { display: flex !important; }
+        }
+        @media (max-width: 580px) {
+          .services-grid { grid-template-columns: 1fr !important; }
+          .gallery-grid  { grid-template-columns: 1fr !important; }
+          .gallery-grid .gallery-wide { grid-column: span 1 !important; }
+          .stat-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}</style>
+
+      {/* ════════════════════ NAVIGATION ════════════════════ */}
+      <nav style={{
+        position: "fixed", top: 0, left: 0, right: 0, zIndex: 999,
+        transition: "all 0.45s ease",
+        background: scrolled ? "rgba(20,20,20,0.96)" : "transparent",
+        backdropFilter: scrolled ? "blur(12px)" : "none",
+        padding: scrolled ? "14px 48px" : "28px 48px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        borderBottom: scrolled ? `1px solid rgba(201,168,108,0.2)` : "none",
+      }}>
+        {/* Logo */}
+        <button onClick={() => scrollTo("accueil")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px" }}>
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 500, color: C.gold, letterSpacing: "4px", lineHeight: 1 }}>ROYAL HOTEL</span>
+          <span style={{ fontSize: "9px", letterSpacing: "4px", color: "rgba(255,255,255,0.45)", textTransform: "uppercase" }}>Grand-Bassam · Côte d'Ivoire</span>
+        </button>
+
+        {/* Desktop links */}
+        <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: "36px" }}>
+          {NAV_LINKS.map(({ id, label }) => (
+            <button key={id} className="nav-link" onClick={() => scrollTo(id)} style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "rgba(255,255,255,0.8)", fontSize: "11px",
+              letterSpacing: "2px", textTransform: "uppercase",
+              fontFamily: "'Jost', sans-serif", fontWeight: 400,
+              transition: "color 0.3s",
+            }}>{label}</button>
+          ))}
+          <button className="btn-gold" onClick={() => scrollTo("contact")} style={btn(C.gold, C.dark)}>
+            Réserver
+          </button>
+        </div>
+
+        {/* Hamburger */}
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} style={{
+          display: "none", flexDirection: "column", gap: "5px",
+          background: "none", border: "none", cursor: "pointer", padding: "4px",
+        }}>
+          {[0,1,2].map(i => (
+            <span key={i} style={{ display: "block", width: "24px", height: "1px", background: C.gold, transition: "all 0.3s",
+              transform: menuOpen && i === 0 ? "rotate(45deg) translate(4px, 4px)" : menuOpen && i === 2 ? "rotate(-45deg) translate(4px, -4px)" : "none",
+              opacity: menuOpen && i === 1 ? 0 : 1,
+            }} />
+          ))}
+        </button>
+      </nav>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 998,
+          background: "rgba(20,20,20,0.98)", display: "flex",
+          flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "32px",
+        }}>
+          {NAV_LINKS.map(({ id, label }) => (
+            <button key={id} onClick={() => scrollTo(id)} style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "rgba(255,255,255,0.85)", fontSize: "24px",
+              fontFamily: "'Cormorant Garamond', serif", fontWeight: 300,
+              letterSpacing: "4px",
+            }}>{label}</button>
+          ))}
+          <button className="btn-gold" onClick={() => scrollTo("contact")} style={{ ...btn(C.gold, C.dark), marginTop: "16px" }}>
+            Réserver maintenant
+          </button>
+        </div>
+      )}
+
+      {/* ════════════════════ HERO ════════════════════ */}
+      <section id="accueil" style={{ position: "relative", height: "100vh", minHeight: "640px", overflow: "hidden" }}>
+        <img src={IMAGES.hero} alt="Façade de l'hôtel" style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: "cover", filter: "brightness(0.5)",
+        }} />
+        {/* Overlay gradient */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(160deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%)",
+        }} />
+        {/* Content */}
+        <div style={{
+          position: "relative", zIndex: 1, height: "100%",
+          display: "flex", flexDirection: "column", alignItems: "center",
+          justifyContent: "center", textAlign: "center", padding: "0 24px",
+        }}>
+          <p style={{ ...sectionLabel, color: C.gold, animation: "fadeUp 0.8s ease both", marginBottom: "24px" }}>
+            ✦ &nbsp; Hôtel de luxe &nbsp; ✦
+          </p>
+          <h1 style={{
+            fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, color: "#fff",
+            fontSize: "clamp(54px, 9vw, 104px)", lineHeight: 1.05,
+            letterSpacing: "6px", animation: "fadeUp 0.9s 0.15s ease both",
+            marginBottom: "20px",
+          }}>
+            Hôtel<br />Royal Hotel
+          </h1>
+          <p style={{
+            color: "rgba(255,255,255,0.75)", fontSize: "clamp(13px, 1.5vw, 16px)",
+            letterSpacing: "3px", fontWeight: 300, marginBottom: "56px",
+            animation: "fadeUp 1s 0.3s ease both",
+          }}>
+            Où l'élégance rencontre le confort
+          </p>
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", justifyContent: "center", animation: "fadeUp 1s 0.45s ease both" }}>
+            <button className="btn-gold" onClick={() => scrollTo("contact")} style={btn(C.gold, C.dark)}>
+              Réserver maintenant
+            </button>
+            <button className="btn-outline" onClick={() => scrollTo("galerie")} style={btn("transparent", "#fff", "1px solid rgba(255,255,255,0.55)")}>
+              Découvrir l'hôtel
+            </button>
+          </div>
+        </div>
+        {/* Scroll indicator */}
+        <div style={{
+          position: "absolute", bottom: "40px", left: "50%", transform: "translateX(-50%)",
+          display: "flex", flexDirection: "column", alignItems: "center", gap: "10px",
+          color: "rgba(255,255,255,0.5)", fontSize: "10px", letterSpacing: "3px", textTransform: "uppercase",
+        }}>
+          <span>Défiler</span>
+          <div style={{
+            width: "1px", height: "50px",
+            background: "linear-gradient(to bottom, rgba(201,168,108,0.6), transparent)",
+            animation: "pulse 2s infinite",
+          }} />
+        </div>
+      </section>
+
+      {/* ════════════════════ À PROPOS ════════════════════ */}
+      <section id="apropos" style={{ padding: "120px 48px", background: C.white }}>
+        <div className="about-grid" style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "center" }}>
+          {/* Texte */}
+          <div>
+            <p style={sectionLabel}>Notre histoire</p>
+            <h2 style={{ ...sectionTitle(), marginBottom: "32px" }}>
+              Un havre de paix<br />au cœur de Grand-Bassam
+            </h2>
+            <p style={{ fontSize: "15px", lineHeight: "1.95", color: C.muted, marginBottom: "20px", fontWeight: 300 }}>
+              Depuis notre ouverture, Royal Hotel incarne l'hospitalité ivoirienne dans ce qu'elle a de plus raffiné. Situé à Grand-Bassam, notre établissement allie architecture contemporaine et chaleur authentique.
+            </p>
+            <p style={{ fontSize: "15px", lineHeight: "1.95", color: C.muted, marginBottom: "48px", fontWeight: 300 }}>
+              Chaque détail a été pensé pour offrir un séjour mémorable, qu'il s'agisse d'un voyage d'affaires ou de pur plaisir.
+            </p>
+            <div className="stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+              {[["50+", "Chambres"], ["10+", "Ans d'expérience"], ["98%", "Satisfaction client"]].map(([n, l]) => (
+                <div key={l} style={{ borderTop: `2px solid ${C.gold}`, paddingTop: "16px" }}>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "40px", fontWeight: 500, color: C.dark, lineHeight: 1 }}>{n}</div>
+                  <div style={{ fontSize: "10px", letterSpacing: "2px", textTransform: "uppercase", color: C.muted, fontWeight: 300, marginTop: "6px" }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Image */}
+          <div style={{ position: "relative" }}>
+            <img src={IMAGES.about} alt="Réception de l'hôtel" style={{ width: "100%", height: "520px", objectFit: "cover", display: "block" }} />
+            <div style={{
+              position: "absolute", bottom: "-28px", right: "-28px",
+              background: C.gold, padding: "32px 28px",
+              fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
+              fontSize: "18px", color: C.dark, maxWidth: "210px", lineHeight: "1.5",
+              zIndex: 1,
+            }}>
+              "L'excellence en toutes choses"
+            </div>
+            {/* Decorative border */}
+            <div style={{
+              position: "absolute", top: "-16px", left: "-16px",
+              width: "120px", height: "120px",
+              border: `1px solid ${C.goldLight}`, zIndex: 0,
+            }} />
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ SERVICES ════════════════════ */}
+      <section id="services" style={{ padding: "120px 48px", background: C.cream }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "80px" }}>
+            <p style={sectionLabel}>Ce que nous offrons</p>
+            <h2 style={sectionTitle()}>Nos Services</h2>
+          </div>
+          <div className="services-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "28px" }}>
+            {SERVICES.map(({ icon, title, desc }) => (
+              <div key={title} className="service-card" style={{
+                background: C.white, padding: "48px 36px",
+                borderBottom: `3px solid ${C.gold}`,
+                transition: "transform 0.35s ease, box-shadow 0.35s ease",
+              }}>
+                <div style={{ fontSize: "36px", marginBottom: "24px" }}>{icon}</div>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, fontSize: "22px", color: C.dark, marginBottom: "14px" }}>{title}</h3>
+                <p style={{ fontSize: "14px", lineHeight: "1.85", color: C.muted, fontWeight: 300 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ GALERIE ════════════════════ */}
+      <section id="galerie" style={{ padding: "120px 48px", background: C.white }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "80px" }}>
+            <p style={sectionLabel}>Nos espaces</p>
+            <h2 style={sectionTitle()}>Galerie Photos</h2>
+          </div>
+          <div className="gallery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "14px" }}>
+            {IMAGES.gallery.map((src, i) => (
+              <div key={i} className={`gallery-img${i === 0 ? " gallery-wide" : ""}`}
+                style={{
+                  overflow: "hidden", cursor: "pointer",
+                  gridColumn: i === 0 ? "span 2" : "span 1",
+                }}
+                onClick={() => setLightbox(src)}
+              >
+                <img src={src} alt={`Vue de l'hôtel ${i + 1}`} style={{
+                  width: "100%", height: i === 0 ? "420px" : "290px",
+                  objectFit: "cover", display: "block",
+                  transition: "transform 0.6s ease",
+                }} />
+              </div>
+            ))}
+          </div>
+          <p style={{ textAlign: "center", marginTop: "32px", fontSize: "12px", letterSpacing: "2px", color: C.muted, textTransform: "uppercase" }}>
+            Cliquez sur une image pour l'agrandir
+          </p>
+        </div>
+      </section>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div onClick={() => setLightbox(null)} style={{
+          position: "fixed", inset: 0, zIndex: 2000,
+          background: "rgba(0,0,0,0.92)", display: "flex",
+          alignItems: "center", justifyContent: "center", padding: "24px", cursor: "zoom-out",
+        }}>
+          <img src={lightbox} alt="Agrandie" style={{ maxWidth: "90vw", maxHeight: "85vh", objectFit: "contain" }} />
+          <button onClick={() => setLightbox(null)} style={{
+            position: "absolute", top: "24px", right: "32px",
+            background: "none", border: "none", color: C.gold,
+            fontSize: "28px", cursor: "pointer",
+          }}>✕</button>
+        </div>
+      )}
+
+      {/* ════════════════════ BANNIÈRE CTA ════════════════════ */}
+      <section style={{ padding: "110px 48px", background: C.dark, textAlign: "center", position: "relative", overflow: "hidden" }}>
+        {/* Cercles décoratifs */}
+        {[400, 620, 840].map(s => (
+          <div key={s} style={{
+            position: "absolute", top: "50%", left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: s + "px", height: s + "px",
+            border: `1px solid rgba(201,168,108,${s === 400 ? 0.12 : s === 620 ? 0.07 : 0.04})`,
+            borderRadius: "50%", pointerEvents: "none",
+          }} />
+        ))}
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <p style={{ ...sectionLabel, color: C.gold }}>Offre exclusive</p>
+          <h2 style={{ ...sectionTitle(C.white), marginBottom: "24px" }}>
+            Réservez votre séjour<br />de rêve aujourd'hui
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: "15px", marginBottom: "56px", fontWeight: 300, maxWidth: "480px", margin: "0 auto 56px" }}>
+            Profitez de nos tarifs préférentiels réservés aux réservations en direct sur notre site.
+          </p>
+          <button className="btn-gold" onClick={() => scrollTo("contact")} style={btn(C.gold, C.dark)}>
+            Réserver maintenant
+          </button>
+        </div>
+      </section>
+
+      {/* ════════════════════ CONTACT ════════════════════ */}
+      <section id="contact" style={{ padding: "120px 48px", background: C.cream }}>
+        <div className="contact-grid" style={{ maxWidth: "1200px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "start" }}>
+          {/* Infos */}
+          <div>
+            <p style={sectionLabel}>Nous contacter</p>
+            <h2 style={{ ...sectionTitle(), marginBottom: "48px" }}>Planifiez<br />votre séjour</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+              {[
+                ["📍", "Adresse",   HOTEL.address],
+                ["📞", "Téléphone", HOTEL.phone],
+                ["✉️", "Email",     HOTEL.email],
+                ["🕐", "Réception", "Ouverte 24h/24 · 7j/7"],
+              ].map(([icon, label, value]) => (
+                <div key={label} style={{ display: "flex", gap: "18px", alignItems: "flex-start" }}>
+                  <span style={{ fontSize: "18px", marginTop: "3px" }}>{icon}</span>
+                  <div>
+                    <div style={{ fontSize: "10px", letterSpacing: "3px", textTransform: "uppercase", color: C.muted, marginBottom: "5px", fontWeight: 400 }}>{label}</div>
+                    <div style={{ fontSize: "15px", color: C.dark, fontWeight: 300 }}>{value}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Formulaire */}
+          <div style={{ background: C.white, padding: "56px 48px" }}>
+            {sent ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <div style={{ fontSize: "48px", marginBottom: "24px" }}>✉️</div>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 400, color: C.dark, marginBottom: "12px" }}>Message envoyé !</h3>
+                <p style={{ color: C.muted, fontWeight: 300 }}>Nous vous répondrons dans les plus brefs délais.</p>
+                <button onClick={() => setSent(false)} style={{ ...btn("transparent", C.gold, `1px solid ${C.gold}`), marginTop: "32px" }}>
+                  Nouveau message
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "30px", fontWeight: 400, color: C.dark, marginBottom: "36px" }}>
+                  Envoyer un message
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                  {[
+                    ["Nom complet *", "name",  "text"],
+                    ["Adresse email *", "email", "email"],
+                    ["Téléphone",      "phone", "tel"],
+                  ].map(([ph, key, type]) => (
+                    <div key={key}>
+                      <input
+                        type={type}
+                        placeholder={ph}
+                        value={form[key]}
+                        onChange={e => setForm({ ...form, [key]: e.target.value })}
+                        style={{
+                          width: "100%", border: "none",
+                          borderBottom: `1px solid ${C.goldLight}`,
+                          background: "transparent", padding: "12px 0",
+                          fontSize: "14px", fontFamily: "'Jost', sans-serif",
+                          color: C.dark, outline: "none", fontWeight: 300,
+                          transition: "border-color 0.3s",
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <textarea
+                    placeholder="Votre message ou demande de réservation..."
+                    rows={4}
+                    value={form.message}
+                    onChange={e => setForm({ ...form, message: e.target.value })}
+                    style={{
+                      width: "100%", border: "none",
+                      borderBottom: `1px solid ${C.goldLight}`,
+                      background: "transparent", padding: "12px 0",
+                      fontSize: "14px", fontFamily: "'Jost', sans-serif",
+                      color: C.dark, outline: "none", resize: "none", fontWeight: 300,
+                      transition: "border-color 0.3s",
+                    }}
+                  />
+                  <button
+                    className="btn-dark"
+                    onClick={handleSend}
+                    disabled={!form.name || !form.email}
+                    style={{
+                      ...btn(C.dark, C.white),
+                      alignSelf: "flex-start",
+                      opacity: (!form.name || !form.email) ? 0.5 : 1,
+                      cursor: (!form.name || !form.email) ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Envoyer →
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ════════════════════ FOOTER ════════════════════ */}
+      <footer style={{ background: C.dark, padding: "72px 48px 40px", textAlign: "center" }}>
+        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "30px", color: C.gold, letterSpacing: "6px", marginBottom: "8px" }}>
+          ROYAL HOTEL
+        </div>
+        <p style={{ fontSize: "11px", letterSpacing: "3px", color: "rgba(255,255,255,0.35)", marginBottom: "40px" }}>
+          {HOTEL.address}
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", gap: "32px", flexWrap: "wrap", marginBottom: "40px" }}>
+          {NAV_LINKS.map(({ id, label }) => (
+            <button key={id} onClick={() => scrollTo(id)} style={{
+              background: "none", border: "none", cursor: "pointer",
+              color: "rgba(255,255,255,0.4)", fontSize: "10px",
+              letterSpacing: "2px", textTransform: "uppercase",
+              fontFamily: "'Jost', sans-serif", transition: "color 0.3s",
+            }} className="nav-link">{label}</button>
+          ))}
+        </div>
+        <div style={{ width: "48px", height: "1px", background: `rgba(201,168,108,0.3)`, margin: "0 auto 28px" }} />
+        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", letterSpacing: "1px" }}>
+          © 2026 Royal Hotel · Tous droits réservés
+        </p>
+      </footer>
+    </div>
+  );
+}

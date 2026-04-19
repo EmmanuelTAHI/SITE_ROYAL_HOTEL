@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); const keys = Object.keys\\(l\\).filter\\(k => k.toLowerCase\\(\\).includes\\('share'\\) || k.toLowerCase\\(\\).includes\\('social'\\) || k.toLowerCase\\(\\).includes\\('link'\\) || k.toLowerCase\\(\\).includes\\('at'\\)\\); console.log\\(keys.slice\\(0,20\\)\\)\")"
+    ]
+  }
+}
