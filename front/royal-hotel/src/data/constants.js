@@ -43,15 +43,17 @@ import galleryImg040 from '../assets/images/hotel-photo-040.jpg';
 
 // ─── Configuration de l'hôtel ────────────────────────────────────────────────
 export const HOTEL = {
-  name:    "Royal Hotel",
-  tagline: "Où l'élégance rencontre le confort",
-  phone:   "+225 27 22 000 000",
-  email:   "contact@hotelpalmier.ci",
-  address: "Grand-Bassam, Côte d'Ivoire",
+  name:     "Royal Hotel",
+  tagline:  "Où l'élégance rencontre le confort",
+  phone:    "+225 07 04 63 63 63",
+  phone2:   "+225 01 51 81 92 14",
+  email:    "royalhotelgb@gmail.com",
+  address:  "Grand-Bassam, Côte d'Ivoire",
+  facebook: "https://www.facebook.com/royalhotelgb",
   mapEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d640.4203918100485!2d-3.735993877436686!3d5.202677006922828!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfc20315ff23236f%3A0xfb0025528ed4fc5a!2sRoyal%20Hotel%20Groupe!5e1!3m2!1sfr!2sci!4v1776344646801!5m2!1sfr!2sci",
 };
 
-// ─── Images (Locales) ────────────────────────────────────────────────────────
+// ─── Images ──────────────────────────────────────────────────────────────────
 export const IMAGES = {
   hero:  heroImg,
   about: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1000&q=85",
@@ -65,104 +67,92 @@ export const IMAGES = {
     galleryImg031, galleryImg032, galleryImg033, galleryImg034, galleryImg035,
     galleryImg036, galleryImg037, galleryImg038, galleryImg039, galleryImg040,
   ],
-  rooms: [
-    "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=700&q=80",
-    "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=700&q=80",
-    "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=700&q=80",
-    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=700&q=80",
-  ],
 };
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 export const NAV_LINKS = [
-  { id: "accueil",      label: "Accueil" },
-  { id: "apropos",      label: "À Propos" },
-  { id: "services",     label: "Services" },
-  { id: "galerie",      label: "Galerie" },
-  { id: "chambres",     label: "Chambres" },
-  { id: "temoignages",  label: "Témoignages" },
-  { id: "contact",      label: "Contact" },
+  { id: "accueil",     label: "Accueil" },
+  { id: "apropos",     label: "À Propos" },
+  { id: "services",    label: "Services" },
+  { id: "galerie",     label: "Galerie" },
+  { id: "temoignages", label: "Témoignages" },
+  { id: "contact",     label: "Contact" },
 ];
 
 // ─── Services ─────────────────────────────────────────────────────────────────
 export const SERVICES = [
   {
-    icon:  "Bed",
-    title: "Chambres & Suites",
-    desc:  "Des espaces raffinés avec vue panoramique et équipements haut de gamme pour un repos parfait.",
+    icon:    "Bed",
+    number:  "01",
+    title:   "Hébergement",
+    desc:    "14 chambres confortables dans un cadre calme et reposant. Ventilées ou climatisées, chaque chambre est pensée pour votre bien-être et votre repos.",
+    detail:  "Cadre calme · Ventilée ou Climatisée · 14 chambres disponibles",
   },
   {
-    icon:  "UtensilsCrossed",
-    title: "Restaurant Gastronomique",
-    desc:  "Saveurs locales et internationales sublimées par nos chefs dans un cadre d'exception.",
+    icon:    "GlassWater",
+    number:  "02",
+    title:   "Bar & Boissons",
+    desc:    "Profitez de nos boissons fraîches, sodas, jus de fruits et boissons alcoolisées dans une ambiance conviviale et chaleureuse.",
+    detail:  "Boissons fraîches · Jus naturels · Ambiance conviviale",
   },
   {
-    icon:  "Waves",
-    title: "Piscine & Spa",
-    desc:  "Détente absolue avec piscine à débordement, hammam et soins bien-être personnalisés.",
-  },
-  {
-    icon:  "CalendarHeart",
-    title: "Salles d'Événements",
-    desc:  "Espaces modulables et entièrement équipés pour séminaires, mariages et réceptions.",
-  },
-  {
-    icon:  "Car",
-    title: "Service de Navette",
-    desc:  "Transferts aéroport et excursions sur demande, disponibles 24h/24 et 7j/7.",
-  },
-  {
-    icon:  "Wifi",
-    title: "Wi-Fi Premium",
-    desc:  "Connexion haut débit ultra-rapide dans toutes les chambres et espaces communs.",
+    icon:    "ShoppingBag",
+    number:  "03",
+    title:   "Livraison de Repas",
+    desc:    "Faites-vous livrer vos repas directement dans votre chambre. Notre équipe vous apporte la nourriture de votre choix avec sourire et rapidité.",
+    detail:  "Livraison en chambre · Repas au choix · Service rapide",
   },
 ];
 
-// ─── Chambres ─────────────────────────────────────────────────────────────────
-export const ROOMS = [
+// ─── Types de chambres (modal de réservation) ─────────────────────────────────
+export const ROOM_TYPES = [
   {
-    image:    IMAGES.rooms[0],
-    category: "Standard",
-    title:    "Chambre Standard",
-    desc:     "Chambre confortable avec vue sur jardin, lit queen size, climatisation et minibar.",
-    price:    "75 000",
-    currency: "FCFA",
-    perNight: "/ nuit",
-    features: ["Queen Bed", "Wi-Fi", "Climatisation", "Minibar"],
-    badge:    null,
+    id:       "ventilee",
+    label:    "Chambre Ventilée",
+    price:    7000,
+    type:     "Ventilée",
+    desc:     "Chambre confortable avec ventilateur, idéale pour un séjour à budget maîtrisé.",
+    features: ["Ventilateur", "Eau chaude", "TV", "Wi-Fi"],
   },
   {
-    image:    IMAGES.rooms[1],
-    category: "Deluxe",
-    title:    "Chambre Deluxe",
-    desc:     "Chambre spacieuse avec balcon et vue sur la piscine, baignoire balnéo et écran 55''.",
-    price:    "120 000",
-    currency: "FCFA",
-    perNight: "/ nuit",
-    features: ["King Bed", "Balcon", "Baignoire", "Vue Piscine"],
-    badge:    "Populaire",
+    id:       "clim-confort",
+    label:    "Chambre Confort",
+    price:    12000,
+    type:     "Climatisée",
+    desc:     "Climatisation et équipements de confort pour un séjour agréable.",
+    features: ["Climatisation", "Eau chaude", "TV", "Wi-Fi"],
   },
   {
-    image:    IMAGES.rooms[2],
-    category: "Suite",
-    title:    "Suite Junior",
-    desc:     "Suite élégante avec salon séparé, salle de bain en marbre et service en chambre 24h/24.",
-    price:    "185 000",
-    currency: "FCFA",
-    perNight: "/ nuit",
-    features: ["King Bed", "Salon", "Marbre", "Room Service"],
-    badge:    null,
+    id:       "clim-standard",
+    label:    "Chambre Standard",
+    price:    15000,
+    type:     "Climatisée",
+    desc:     "Plus d'espace et de confort avec un design soigné.",
+    features: ["Climatisation", "Minibar", "TV HD", "Wi-Fi"],
   },
   {
-    image:    IMAGES.rooms[3],
-    category: "Prestige",
-    title:    "Suite Présidentielle",
-    desc:     "Le summum du luxe : double salon, terrasse privée avec jacuzzi, butler personnel dédié.",
-    price:    "350 000",
-    currency: "FCFA",
-    perNight: "/ nuit",
-    features: ["King Bed", "Jacuzzi", "Terrasse", "Butler"],
-    badge:    "Exclusif",
+    id:       "clim-superieure",
+    label:    "Chambre Supérieure",
+    price:    20000,
+    type:     "Climatisée",
+    desc:     "Design raffiné et capacité supérieure pour plus d'espace et de confort.",
+    features: ["Climatisation", "Design premium", "TV 4K", "Wi-Fi"],
+  },
+  {
+    id:       "clim-deluxe",
+    label:    "Chambre Deluxe",
+    price:    25000,
+    type:     "Climatisée",
+    desc:     "Le summum du confort disponible, literie haut de gamme et vue extérieure.",
+    features: ["Climatisation", "Literie luxe", "Vue extérieure", "Wi-Fi"],
+  },
+  {
+    id:       "test-200",
+    label:    "Chambre Test",
+    price:    200,
+    type:     "Test",
+    desc:     "Chambre de test — 200 FCFA pour vérifier le système de paiement.",
+    features: ["Test uniquement"],
   },
 ];
 
@@ -172,43 +162,43 @@ export const TESTIMONIALS = [
     name:    "Sophie Marchetti",
     country: "France 🇫🇷",
     rating:  5,
-    text:    "Un hôtel absolument magnifique. Le service était impeccable et l'attention portée aux détails était remarquable. Nous avons adoré chaque instant de notre séjour.",
+    text:    "Un hôtel absolument magnifique. Le service était impeccable et l'attention portée aux détails était remarquable. Nous avons adoré chaque instant de notre séjour à Grand-Bassam.",
     avatar:  "SM",
   },
   {
     name:    "James Okafor",
     country: "Nigeria 🇳🇬",
     rating:  5,
-    text:    "The best hotel experience I've ever had in West Africa. The staff went above and beyond to make our stay memorable. The spa is world-class!",
+    text:    "La meilleure expérience hôtelière que j'aie vécue en Afrique de l'Ouest. Le personnel a tout fait pour rendre notre séjour inoubliable. Le cadre est vraiment exceptionnel !",
     avatar:  "JO",
   },
   {
     name:    "Amina Koné",
     country: "Côte d'Ivoire 🇨🇮",
     rating:  5,
-    text:    "J'ai organisé le mariage de ma fille ici et tout était parfait. L'équipe est professionnelle, le cadre sublime. Je recommande vivement.",
+    text:    "Un séjour d'exception au Royal Hotel. L'équipe est professionnelle, le cadre est sublime et l'ambiance est parfaitement calme et reposante. Je recommande vivement à tous !",
     avatar:  "AK",
   },
   {
     name:    "Lukas Becker",
     country: "Allemagne 🇩🇪",
     rating:  5,
-    text:    "Exceptional location, beautiful rooms and the restaurant is outstanding. The gastronomic experience was one of the highlights of my trip to Abidjan.",
+    text:    "Emplacement exceptionnel et chambres magnifiques. Mon séjour au Royal Hotel a été l'un des moments forts de mon voyage en Côte d'Ivoire. Je reviendrai sans hésiter.",
     avatar:  "LB",
   },
   {
     name:    "Fatou Diallo",
     country: "Sénégal 🇸🇳",
     rating:  5,
-    text:    "Séjour parfait pour des vacances en famille. La piscine est superbe, les enfants ont adoré. Le personnel est chaleureux et très attentionné.",
+    text:    "Séjour parfait pour des vacances en famille. Le cadre est calme et reposant, les enfants ont adoré. Le personnel est chaleureux et très attentionné. On reviendra certainement !",
     avatar:  "FD",
   },
 ];
 
 // ─── Stats (section À Propos) ─────────────────────────────────────────────────
 export const STATS = [
-  { value: 50,  suffix: "+", label: "Chambres" },
-  { value: 10,  suffix: "+", label: "Ans d'expérience" },
-  { value: 98,  suffix: "%", label: "Satisfaction client" },
-  { value: 24,  suffix: "h",  label: "Service continu" },
+  { value: 14, suffix: "",  label: "Chambres" },
+  { value: 19, suffix: "+", label: "Ans d'expérience" },
+  { value: 98, suffix: "%", label: "Satisfaction client" },
+  { value: 24, suffix: "h", label: "Service continu" },
 ];

@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Redirige toutes les requêtes /api/genius/* vers la Netlify Function proxy
+[[redirects]]
+  from   = "/api/genius/*"
+  to     = "/.netlify/functions/genius-proxy/:splat"
+  status = 200
+  force  = true
+
+# SPA fallback : toutes les routes → index.html
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

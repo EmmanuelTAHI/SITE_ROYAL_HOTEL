@@ -33,13 +33,14 @@ export default function About() {
             </h2>
 
             <p className="text-muted font-jost font-light text-[15px] leading-[1.9] mb-5">
-              Depuis notre ouverture, Royal Hotel incarne l'hospitalité ivoirienne dans ce qu'elle a
-              de plus raffiné. Situé à Grand-Bassam, notre établissement allie architecture contemporaine
-              et chaleur authentique.
+              Depuis 2007, le Royal Hotel incarne l'hospitalité ivoirienne dans ce qu'elle a de plus
+              chaleureux. Situé à Grand-Bassam, notre établissement allie confort moderne
+              et authenticité africaine dans un cadre calme et reposant.
             </p>
             <p className="text-muted font-jost font-light text-[15px] leading-[1.9] mb-12">
-              Chaque détail a été pensé pour offrir un séjour mémorable, qu'il s'agisse d'un voyage
-              d'affaires ou de pur plaisir. Notre équipe dévouée veille à ce que chaque instant soit parfait.
+              Avec 14 chambres soigneusement aménagées, nous accueillons voyageurs et familles qui
+              cherchent un séjour simple, agréable et convivial. Notre équipe dévouée veille à
+              ce que chaque instant soit parfait.
             </p>
 
             {/* Statistiques animées */}

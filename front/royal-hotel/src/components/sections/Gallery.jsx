@@ -1,71 +1,36 @@
-// sections/Gallery.jsx
-// Galerie masonry avec pagination - 6 images par page
-import { useState, useEffect, useCallback } from 'react';
+// sections/Gallery.jsx — Galerie 8 images/page, pagination fluide sans scroll-to-top
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import SectionHeader from '../ui/SectionHeader';
-import { staggerContainerVariants, cardVariants } from '../../hooks/useScrollAnimation';
 import { IMAGES } from '../../data/constants';
 
-const IMAGES_PER_PAGE = 6;
+const IMAGES_PER_PAGE = 8;
 
 export default function Gallery() {
-  const [lightbox, setLightbox]           = useState(null);
-  const [imageDimensions, setImageDimensions] = useState({});
-  const [currentPage, setCurrentPage]     = useState(0);
+  const [lightbox, setLightbox]     = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [direction, setDirection]   = useState(1); // 1=forward, -1=backward
+  const gridRef                     = useRef(null);
 
-  const images     = IMAGES.gallery;
-  const totalPages = Math.ceil(images.length / IMAGES_PER_PAGE);
-  const startIdx   = currentPage * IMAGES_PER_PAGE;
+  const images      = IMAGES.gallery;
+  const totalPages  = Math.ceil(images.length / IMAGES_PER_PAGE);
+  const startIdx    = currentPage * IMAGES_PER_PAGE;
   const visibleImages = images.slice(startIdx, startIdx + IMAGES_PER_PAGE);
 
-  // Recharger les dimensions à chaque changement de page
-  useEffect(() => {
-    setImageDimensions({});          // ← reset impératif avant de charger la nouvelle page
-    let cancelled = false;
-    const dims = {};
-    let count = 0;
+  const goToPage = useCallback((p) => {
+    const next = ((p % totalPages) + totalPages) % totalPages;
+    setDirection(next > currentPage ? 1 : -1);
+    setCurrentPage(next);
+  }, [currentPage, totalPages]);
 
-    const pageImages = images.slice(currentPage * IMAGES_PER_PAGE, (currentPage + 1) * IMAGES_PER_PAGE);
-
-    pageImages.forEach((src, idx) => {
-      const img = new Image();
-      img.onload = () => {
-        if (cancelled) return;
-        dims[idx] = {
-          width:      img.naturalWidth,
-          height:     img.naturalHeight,
-          isPortrait: img.naturalHeight > img.naturalWidth,
-        };
-        count++;
-        if (count === pageImages.length) {
-          setImageDimensions({ ...dims });
-        }
-      };
-      img.onerror = () => {
-        if (cancelled) return;
-        count++;
-        if (count === pageImages.length) setImageDimensions({ ...dims });
-      };
-      img.src = src;
-    });
-
-    return () => { cancelled = true; };
-  }, [currentPage, images]);
-
-  const getImageClass = useCallback((idx) => {
-    const d = imageDimensions[idx];
-    if (!d) return 'col-span-1';
-    return d.isPortrait || idx % 3 !== 0 ? 'col-span-1' : 'lg:col-span-2';
-  }, [imageDimensions]);
-
-  // Navigation lightbox au clavier
+  // Keyboard navigation for lightbox
   useEffect(() => {
     if (lightbox === null) return;
     const onKey = (e) => {
-      if (e.key === 'Escape')      setLightbox(null);
-      if (e.key === 'ArrowRight')  setLightbox(i => (i + 1) % images.length);
-      if (e.key === 'ArrowLeft')   setLightbox(i => (i - 1 + images.length) % images.length);
+      if (e.key === 'Escape')     setLightbox(null);
+      if (e.key === 'ArrowRight') setLightbox(i => (i + 1) % images.length);
+      if (e.key === 'ArrowLeft')  setLightbox(i => (i - 1 + images.length) % images.length);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -74,10 +39,17 @@ export default function Gallery() {
   const prev = useCallback(() => setLightbox(i => (i - 1 + images.length) % images.length), [images.length]);
   const next = useCallback(() => setLightbox(i => (i + 1) % images.length), [images.length]);
 
-  const goToPage = (p) => {
-    setCurrentPage(p);
-    // Remonter au début de la section pour que whileInView se redéclenche
-    document.getElementById('galerie')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Slide variants for page transition (stays in place, no scroll)
+  const slideVariants = {
+    enter: (d) => ({ opacity: 0, x: d > 0 ? 40 : -40 }),
+    center: {
+      opacity: 1, x: 0,
+      transition: { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] },
+    },
+    exit: (d) => ({
+      opacity: 0, x: d > 0 ? -40 : 40,
+      transition: { duration: 0.3 },
+    }),
   };
 
   return (
@@ -85,93 +57,112 @@ export default function Gallery() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         <SectionHeader label="Nos espaces" title="Galerie Photos" />
 
-        {/* ── Grille masonry ──────────────────────────────────────────────
-            key={currentPage} force le remontage complet à chaque changement
-            de page → whileInView se redéclenche et les images animent bien.
-        */}
-        <motion.div
-          key={currentPage}
-          variants={staggerContainerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-40px' }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[280px] sm:auto-rows-[320px]"
-        >
-          {visibleImages.map((src, i) => {
-            const globalIdx = startIdx + i;
-            return (
-              <motion.div
-                key={`${currentPage}-${i}`}
-                variants={cardVariants}
-                onClick={() => setLightbox(globalIdx)}
-                className={`relative overflow-hidden cursor-pointer group rounded-lg
-                  col-span-1 ${getImageClass(i)}`}
-              >
-                <img
-                  src={src}
-                  alt={`Photo de l'hôtel ${globalIdx + 1}`}
-                  loading="lazy"
-                  className="w-full h-full object-cover block transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent
-                                group-hover:from-black/80 transition-all duration-400" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <ZoomIn
-                    size={32}
-                    className="text-white opacity-0 group-hover:opacity-100 scale-75
-                               group-hover:scale-100 transition-all duration-400"
-                  />
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
+        {/* ── Grille animée (AnimatePresence pour le slide) ─────────── */}
+        <div className="relative overflow-hidden" ref={gridRef}>
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={currentPage}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[220px] sm:auto-rows-[260px]"
+            >
+              {visibleImages.map((src, i) => {
+                const globalIdx = startIdx + i;
+                // Large spanning cells for visual interest
+                const isWide = i === 0 || i === 5;
+                return (
+                  <div
+                    key={`${currentPage}-${i}`}
+                    onClick={() => setLightbox(globalIdx)}
+                    className={`relative overflow-hidden cursor-pointer group rounded-lg
+                      ${isWide ? 'col-span-2' : 'col-span-1'}`}
+                  >
+                    <img
+                      src={src}
+                      alt={`Photo de l'hôtel ${globalIdx + 1}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover block transition-transform duration-700
+                                 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent
+                                    opacity-0 group-hover:opacity-100 transition-all duration-400" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <ZoomIn
+                        size={30}
+                        className="text-white opacity-0 group-hover:opacity-100 scale-75
+                                   group-hover:scale-100 transition-all duration-400"
+                      />
+                    </div>
+                    {/* Numéro de la photo */}
+                    <span className="absolute bottom-3 right-3 text-white/50 text-[9px]
+                                     tracking-[2px] font-jost opacity-0 group-hover:opacity-100
+                                     transition-opacity duration-300">
+                      {globalIdx + 1} / {images.length}
+                    </span>
+                  </div>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-        {/* ── Pagination ─────────────────────────────────────────────── */}
-        <div className="flex flex-col items-center gap-6 mt-12">
+        {/* ── Pagination ──────────────────────────────────────────────── */}
+        <div className="flex flex-col items-center gap-6 mt-10">
           <p className="text-center text-[11px] tracking-[3px] uppercase text-muted font-jost font-light">
             Cliquez sur une image pour l'agrandir
           </p>
 
           {totalPages > 1 && (
-            <div className="flex items-center gap-6">
-              <button
-                onClick={() => goToPage((currentPage - 1 + totalPages) % totalPages)}
+            <div className="flex items-center gap-5">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => goToPage(currentPage - 1)}
                 className="w-10 h-10 flex items-center justify-center border border-gold/30 text-gold
                            hover:bg-gold hover:text-white transition-all duration-300"
                 aria-label="Page précédente"
               >
                 <ChevronLeft size={18} />
-              </button>
+              </motion.button>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
+                  <motion.button
                     key={i}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => goToPage(i)}
-                    className={`w-8 h-8 flex items-center justify-center text-xs font-jost tracking-wide
-                                transition-all duration-300 ${
-                      i === currentPage
-                        ? 'bg-gold text-white'
-                        : 'border border-gold/30 text-gold hover:bg-gold/10'
-                    }`}
+                    className={`transition-all duration-300 flex items-center justify-center font-jost text-xs
+                      ${i === currentPage
+                        ? 'w-9 h-9 bg-gold text-white shadow-lg shadow-gold/20'
+                        : 'w-8 h-8 border border-gold/30 text-gold hover:bg-gold/10'}`}
                     aria-label={`Page ${i + 1}`}
                   >
                     {i + 1}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
 
-              <button
-                onClick={() => goToPage((currentPage + 1) % totalPages)}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => goToPage(currentPage + 1)}
                 className="w-10 h-10 flex items-center justify-center border border-gold/30 text-gold
                            hover:bg-gold hover:text-white transition-all duration-300"
                 aria-label="Page suivante"
               >
                 <ChevronRight size={18} />
-              </button>
+              </motion.button>
             </div>
           )}
+
+          {/* Indicateur de page */}
+          <p className="text-[10px] tracking-[3px] uppercase text-muted/60 font-jost">
+            Page {currentPage + 1} sur {totalPages} · {images.length} photos
+          </p>
         </div>
       </div>
 
@@ -183,14 +174,15 @@ export default function Gallery() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setLightbox(null)}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/92 z-50 flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.85 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.85 }}
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.3 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full h-full max-w-4xl max-h-[90vh] flex items-center justify-center"
+              className="relative w-full h-full max-w-5xl max-h-[90vh] flex items-center justify-center"
             >
               <img
                 src={images[lightbox]}
@@ -200,36 +192,39 @@ export default function Gallery() {
 
               <button
                 onClick={() => setLightbox(null)}
-                className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 p-2 rounded-full
-                           transition-colors duration-300 text-white z-10"
+                className="absolute top-4 right-4 bg-white/15 hover:bg-white/30 p-2.5 rounded-full
+                           transition-colors duration-300 text-white z-10 border border-white/20"
                 aria-label="Fermer"
               >
-                <X size={28} />
+                <X size={24} />
               </button>
 
               {images.length > 1 && (
                 <>
                   <button
                     onClick={prev}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40
-                               p-3 rounded-full transition-colors duration-300 text-white z-10"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/15 hover:bg-white/30
+                               p-3 rounded-full transition-colors duration-300 text-white z-10
+                               border border-white/20"
                     aria-label="Image précédente"
                   >
-                    <ChevronLeft size={28} />
+                    <ChevronLeft size={26} />
                   </button>
                   <button
                     onClick={next}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40
-                               p-3 rounded-full transition-colors duration-300 text-white z-10"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/15 hover:bg-white/30
+                               p-3 rounded-full transition-colors duration-300 text-white z-10
+                               border border-white/20"
                     aria-label="Image suivante"
                   >
-                    <ChevronRight size={28} />
+                    <ChevronRight size={26} />
                   </button>
                 </>
               )}
 
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/20 px-4 py-2 rounded-full
-                              text-white text-sm font-jost z-10">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/15
+                              border border-white/20 px-5 py-2 rounded-full
+                              text-white text-sm font-jost z-10 tracking-widest">
                 {lightbox + 1} / {images.length}
               </div>
             </motion.div>

@@ -1,0 +1,9 @@
+# Fichiers privés / dev
+.claude/
+business-plan.html
+front/prompt.txt
+back/
+
+# OS
+.DS_Store
+Thumbs.db

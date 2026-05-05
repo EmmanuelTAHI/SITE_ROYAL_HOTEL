@@ -10,6 +10,7 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
   }
 
   * {
@@ -18,6 +19,12 @@
 
   body {
     @apply bg-cream text-text font-inter overflow-x-hidden;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  p {
+    font-size: 15px;
   }
 
   /* Dark mode */
@@ -35,32 +42,32 @@
 
   /* Buttons */
   .btn-gold {
-    @apply inline-block bg-gold text-dark text-[11px] tracking-[3px] uppercase font-jost font-medium
+    @apply inline-block bg-gold text-dark text-[12px] tracking-[3px] uppercase font-jost font-medium
            px-10 py-4 cursor-pointer transition-all duration-300
            hover:bg-charcoal-2 hover:text-white focus:outline-none;
   }
 
   .btn-dark {
-    @apply inline-block bg-dark text-white text-[11px] tracking-[3px] uppercase font-jost font-medium
+    @apply inline-block bg-dark text-white text-[12px] tracking-[3px] uppercase font-jost font-medium
            px-10 py-4 cursor-pointer transition-all duration-300
            hover:bg-gold hover:text-dark focus:outline-none;
   }
 
   .btn-outline {
-    @apply inline-block bg-transparent text-white text-[11px] tracking-[3px] uppercase font-jost font-medium
+    @apply inline-block bg-transparent text-white text-[12px] tracking-[3px] uppercase font-jost font-medium
            px-10 py-4 cursor-pointer transition-all duration-300 border border-white/55
            hover:bg-white/15 focus:outline-none;
   }
 
   .btn-outline-gold {
-    @apply inline-block bg-transparent text-gold text-[11px] tracking-[3px] uppercase font-jost font-medium
+    @apply inline-block bg-transparent text-gold text-[12px] tracking-[3px] uppercase font-jost font-medium
            px-10 py-4 cursor-pointer transition-all duration-300 border border-gold
            hover:bg-gold hover:text-dark focus:outline-none;
   }
 
   /* Section label */
   .section-label {
-    @apply text-gold text-[11px] tracking-[5px] uppercase font-jost font-light mb-4 block;
+    @apply text-gold text-[12px] tracking-[5px] uppercase font-jost font-light mb-4 block;
   }
 
   /* Section title */
@@ -78,7 +85,7 @@
 
   /* Nav links */
   .nav-link {
-    @apply text-white/80 text-[11px] tracking-[2px] uppercase font-jost font-light
+    @apply text-white/80 text-[12px] tracking-[2px] uppercase font-jost font-light
            transition-colors duration-300 hover:text-gold bg-transparent border-none cursor-pointer;
   }
 
@@ -90,7 +97,7 @@
   /* Input styles */
   .form-input {
     @apply w-full bg-transparent border-0 border-b border-gold-light/60 pb-3 pt-1
-           text-[14px] font-jost font-light text-dark placeholder:text-muted placeholder:font-light
+           text-[15px] font-jost font-light text-dark placeholder:text-muted placeholder:font-light
            focus:outline-none focus:border-gold transition-colors duration-300;
   }
 

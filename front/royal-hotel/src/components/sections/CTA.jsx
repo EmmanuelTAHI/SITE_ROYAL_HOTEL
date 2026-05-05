@@ -72,9 +72,9 @@ export default function CTA() {
           </button>
           <button
             className="btn-outline"
-            onClick={() => scrollTo('chambres')}
+            onClick={() => scrollTo('galerie')}
           >
-            Voir les chambres
+            Découvrir l'hôtel
           </button>
         </motion.div>
 
