@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Check, ChevronLeft, ChevronRight, Calendar,
-  Tag, Banknote, AlertCircle, ExternalLink,
+  Tag, Banknote, AlertCircle, ExternalLink, MessageCircle, RefreshCw,
 } from 'lucide-react';
 import { ROOM_TYPES } from '../../data/constants';
 import { createPaymentSession, paymentMode } from '../../lib/geniuspay';
@@ -257,8 +257,9 @@ export default function ReservationModal({ isOpen, onClose, initialRoom = '', su
   const [form,         setForm]         = useState(INITIAL_FORM);
   const [errors,       setErrors]       = useState({});
   const [loading,      setLoading]      = useState(false);
-  const [done,         setDone]         = useState(false);
-  const [paymentError, setPaymentError] = useState('');
+  const [done,           setDone]           = useState(false);
+  const [paymentError,   setPaymentError]   = useState('');
+  const [sandboxBlocked, setSandboxBlocked] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -386,9 +387,9 @@ export default function ReservationModal({ isOpen, onClose, initialRoom = '', su
     });
 
     setLoading(false);
+    setSandboxBlocked(!!result.sandboxBlocked);
 
     if (result.success && result.paymentUrl) {
-      // Sauvegarde les données pour l'email de confirmation au retour
       try {
         sessionStorage.setItem('rh_pending_confirmation', JSON.stringify({
           name:       sanitize(form.name),
@@ -406,7 +407,23 @@ export default function ReservationModal({ isOpen, onClose, initialRoom = '', su
     } else {
       setPaymentError(result.error || 'Une erreur est survenue. Veuillez réessayer.');
     }
-  }, [form, nights, finalPrice]);
+  }, [form, nights, finalPrice]); // fin handleSubmit
+
+  // Message WhatsApp pré-rempli pour réservation manuelle
+  const buildWhatsAppUrl = useCallback(() => {
+    if (!form.room) return `https://wa.me/2250704636363`;
+    const msg = encodeURIComponent(
+      `Bonjour, je souhaite réserver :\n` +
+      `• Chambre : ${form.room?.label ?? ''}\n` +
+      `• Arrivée : ${form.checkin || '—'}\n` +
+      `• Départ : ${form.checkout || '—'}\n` +
+      `• Personnes : ${form.persons}\n` +
+      `• Nom : ${form.name || '—'}\n` +
+      `• Tél : ${form.phone || '—'}\n` +
+      `Montant estimé : ${finalPrice.toLocaleString('fr-FR')} FCFA\n\nMerci !`
+    );
+    return `https://wa.me/2250704636363?text=${msg}`;
+  }, [form, finalPrice]); // fin buildWhatsAppUrl
 
   const setCheckin  = (v) => setForm(f => ({ ...f, checkin: v }));
   const setCheckout = (v) => setForm(f => ({ ...f, checkout: v }));
@@ -967,17 +984,50 @@ export default function ReservationModal({ isOpen, onClose, initialRoom = '', su
                           <Check size={18} className="text-[#1A73E8] shrink-0" />
                         </div>
 
-                        {/* Erreur paiement */}
+                        {/* Erreur paiement + fallback WhatsApp */}
                         {paymentError && (
                           <motion.div
                             initial={{ opacity: 0, y: -6 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-start gap-3 bg-red-50 border border-red-200 p-4"
+                            className="flex flex-col gap-3 bg-red-50 border border-red-200 p-4"
                           >
-                            <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-red-600 text-[12px] font-jost font-medium">Erreur de paiement</p>
-                              <p className="text-red-500 text-[11px] font-jost font-light mt-0.5">{paymentError}</p>
+                            <div className="flex items-start gap-3">
+                              <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                              <div>
+                                <p className="text-red-600 text-[12px] font-jost font-medium">
+                                  Erreur de paiement
+                                </p>
+                                <p className="text-red-500 text-[11px] font-jost font-light mt-0.5 leading-relaxed">
+                                  {paymentError}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Options de secours */}
+                            <div className="border-t border-red-200 pt-3 flex flex-col sm:flex-row gap-2">
+                              <button
+                                type="button"
+                                onClick={() => { setPaymentError(''); setSandboxBlocked(false); }}
+                                className="flex items-center justify-center gap-2 px-4 py-2.5
+                                           border border-red-300 text-red-600 text-[10px] tracking-[2px]
+                                           uppercase font-jost hover:bg-red-100 transition-colors duration-200
+                                           cursor-pointer bg-transparent flex-1"
+                              >
+                                <RefreshCw size={11} />
+                                Réessayer
+                              </button>
+                              <a
+                                href={buildWhatsAppUrl()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 px-4 py-2.5
+                                           bg-[#25D366] text-white text-[10px] tracking-[2px]
+                                           uppercase font-jost hover:bg-[#1DA851]
+                                           transition-colors duration-200 flex-1"
+                              >
+                                <MessageCircle size={11} />
+                                Réserver via WhatsApp
+                              </a>
                             </div>
                           </motion.div>
                         )}

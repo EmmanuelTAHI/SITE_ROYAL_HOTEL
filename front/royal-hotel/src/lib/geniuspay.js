@@ -55,7 +55,24 @@ export async function createPaymentSession({
       body: JSON.stringify(payload),
     })
 
-    const data = await res.json()
+    // Lire le corps comme texte d'abord pour détecter les erreurs HTML (Imunify360, etc.)
+    const rawText = await res.text()
+
+    // Détecter une réponse HTML (firewall, bot-protection, etc.)
+    if (rawText.trim().startsWith('<') || rawText.includes('Imunify360') || rawText.includes('bot-protection')) {
+      return {
+        success: false,
+        error:   IS_SANDBOX
+          ? 'Le sandbox GeniusPay est temporairement indisponible (protection anti-bot). Réessayez dans quelques minutes ou contactez-nous directement.'
+          : 'Le service de paiement est momentanément inaccessible. Veuillez réessayer ou nous contacter.',
+        sandboxBlocked: IS_SANDBOX,
+      }
+    }
+
+    let data
+    try { data = JSON.parse(rawText) } catch {
+      return { success: false, error: 'Réponse inattendue du service de paiement.' }
+    }
 
     if (res.ok && data.success) {
       const paymentUrl =
@@ -72,12 +89,16 @@ export async function createPaymentSession({
 
     return {
       success: false,
-      error:   data.error?.message || data.message || 'Erreur lors de l\'initialisation du paiement.',
+      error:   data.error?.message || data.message || "Erreur lors de l'initialisation du paiement.",
     }
   } catch (err) {
+    // Erreur réseau
+    const isOffline = !navigator.onLine
     return {
       success: false,
-      error:   'Impossible de contacter le service de paiement. Vérifiez votre connexion.',
+      error: isOffline
+        ? 'Pas de connexion internet. Vérifiez votre réseau et réessayez.'
+        : 'Impossible de contacter le service de paiement. Vérifiez votre connexion.',
     }
   }
 }

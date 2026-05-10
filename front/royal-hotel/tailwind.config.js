@@ -49,6 +49,15 @@ export default {
       transitionDuration: {
         '400': '400ms',
         '600': '600ms',
+        '800': '800ms',
+      },
+      scale: {
+        '102': '1.02',
+        '103': '1.03',
+        '104': '1.04',
+        '105': '1.05',
+        '107': '1.07',
+        '108': '1.08',
       },
       backgroundImage: {
         'gold-gradient': 'linear-gradient(135deg, #cd9ab6 0%, #e8cad9 50%, #cd9ab6 100%)',

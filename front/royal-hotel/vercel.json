@@ -2,6 +2,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "env": {
+    "VITE_GENIUS_MODE": "production"
+  },
   "rewrites": [
     { "source": "/api/genius/:path*", "destination": "/api/genius-proxy" },
     { "source": "/((?!api/).*)",      "destination": "/index.html" }
